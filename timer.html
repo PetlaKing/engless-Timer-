@@ -1,0 +1,150 @@
+     <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Time</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #051f3f;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+    .countdown {
+      font-size: 120px;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+    .settings {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .settings button {
+      background-color: #222;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px 0;
+      transition: background-color 0.3s ease;
+    }
+    .settings button:hover {
+      background-color: #444;
+    }
+    #wallpaperUpload {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="countdown" id="countdownDisplay">Loading timer...</div>
+
+  <div class="settings">
+    <button onclick="openSettings()">Settings</button>
+    <button onclick="toggleWallpaperMenu()">Wallpaper</button>
+    <div id="wallpaperMenu" style="display: none;">
+      <button onclick="uploadWallpaper()">Upload Image</button>
+      <input type="file" id="wallpaperUpload" accept="image/*" onchange="setWallpaper(event)">
+      <button onclick="resetWallpaper()">Default</button>
+      <button onclick="keepWallpaper()">Keep Current</button>
+    </div>
+  </div>
+
+  <audio id="timerSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+  <script>
+    const targetDate = localStorage.getItem("timerTargetDate");
+    const savedWallpaper = localStorage.getItem("wallpaper");
+    if (savedWallpaper) {
+      document.body.style.backgroundImage = `url('${savedWallpaper}')`;
+    }
+
+    function openSettings() {
+      window.open('index.html', '_blank');
+    }
+
+    function toggleWallpaperMenu() {
+      const menu = document.getElementById('wallpaperMenu');
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function uploadWallpaper() {
+      document.getElementById('wallpaperUpload').click();
+    }
+
+    function setWallpaper(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.body.style.backgroundImage = `url('${e.target.result}')`;
+          localStorage.setItem("wallpaper", e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function resetWallpaper() {
+      document.body.style.backgroundImage = 'none';
+      localStorage.removeItem("wallpaper");
+    }
+
+    function keepWallpaper() {
+      alert("The current wallpaper will remain unchanged.");
+    }
+
+    if (!targetDate) {
+      document.getElementById('countdownDisplay').innerText = "No timer set. Please set a timer on the main page.";
+    } else {
+      let played = false;
+      let countdownInterval = setInterval(function () {
+        const now = new Date().getTime();
+        const diff = now - targetDate;
+
+        if (diff < 0) {
+          // Countdown mode
+          const remaining = -diff;
+          const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+          document.getElementById('countdownDisplay').innerText =
+            `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        } else {
+          // Count-up mode
+          if (!played) {
+            document.getElementById('timerSound').play();
+            played = true;
+          }
+
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+          document.getElementById('countdownDisplay').innerText =
+            `${days}d ${hours}h ${minutes}m ${seconds}s `;
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

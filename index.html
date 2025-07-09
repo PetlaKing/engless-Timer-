@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Set Timer</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #000B18;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+    .container {
+      text-align: center;
+      border: 2px solid #fff;
+      padding: 40px;
+      border-radius: 15px;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    input[type="datetime-local"] {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      margin: 10px 0;
+      width: 200px;
+      background-color: #222;
+      color: #fff;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ff6347;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #ff4500;
+    }
+    .wallpaper-menu {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .wallpaper-menu button {
+      background-color: #222;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px 0;
+      transition: background-color 0.3s ease;
+    }
+    .wallpaper-menu button:hover {
+      background-color: #444;
+    }
+    #wallpaperUpload {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Set Countdown Timer</h1>
+    <input type="datetime-local" id="timerInput" value="2025-06-01T00:00" />
+    <br>
+    <button onclick="startTimer()">Set Timer</button>
+  </div>
+
+  <div class="wallpaper-menu">
+    <button onclick="uploadWallpaper()">Upload Image</button>
+    <input type="file" id="wallpaperUpload" accept="image/*" onchange="setWallpaper(event)">
+    <button onclick="resetWallpaper()">Default</button>
+    <button onclick="keepWallpaper()">Keep Current</button>
+  </div>
+
+  <script>
+    const savedWallpaper = localStorage.getItem("wallpaper");
+    if (savedWallpaper) {
+      document.body.style.backgroundImage = `url('${savedWallpaper}')`;
+    }
+
+    function startTimer() {
+      const input = document.getElementById('timerInput').value;
+      if (!input) {
+        alert("Please select a valid date and time.");
+        return;
+      }
+
+      const targetDate = new Date(input).getTime();
+      localStorage.setItem("timerTargetDate", targetDate);
+      window.location.href = "timer.html";
+    }
+
+    function uploadWallpaper() {
+      document.getElementById('wallpaperUpload').click();
+    }
+
+    function setWallpaper(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.body.style.backgroundImage = `url('${e.target.result}')`;
+          localStorage.setItem("wallpaper", e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function resetWallpaper() {
+      document.body.style.backgroundImage = 'none';
+      localStorage.removeItem("wallpaper");
+    }
+
+    function keepWallpaper() {
+      alert("The current wallpaper will remain unchanged.");
+    }
+  </script>
+</body>
+</html>
